@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Синган | Merdekaport</title>
+    <style>
+        body { background-color: #111; color: #ddd; font-family: Arial, sans-serif; text-align: center; }
+        a { color: #ffcc00; text-decoration: none; }
+        .district { margin: 15px; display: inline-block; background: #222; padding: 10px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Синган, 89 год Эры Тан (1997)</h1>
+    <p>Китайский Новый Год. 00:45. С неба хлещет технический дождь.</p>
+    <hr>
+    <div class="district"><a href="{% url 'eon_apartment' %}">🏠 Квартира Эона (Корни)</a></div>
+    <div class="district"><a href="{% url 'bazaar_index' %}">🎋 Базар</a></div>
+    <div class="district"><a href="{% url 'timos_workshop' %}">🔧 Шахта: Мастерская Тимо</a></div>
+    <div class="district"><a href="{% url 'aurora_restaurant' %}">✨ Ресторан «Аврора» (Канопус, индекс 60+)</a></div>
+    <!-- Добавим остальные районы позже -->
+    <p><a href="{% url 'character_profile' %}">📋 Профиль: Эон</a></p>
+</body>
+</html>

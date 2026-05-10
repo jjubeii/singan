@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ location_name }} | Синган</title>
+    <style>
+        body { background-color: #2a2a2a; color: #1e1e1e; font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background-color: #2a2a2a; padding: 25px; border-radius: 25px; }
+        .forbidden { color: #ff5555; font-style: italic; }
+        .event { background: #3a3a3a; padding: 15px; border-left: 4px solid #ffcc00; margin: 15px 0; }
+        .granted { color: #55ff55;}
+    </style>
+</head>
+<body>
+    <div style="container">
+        <h1>{{ location_name }}</h1>
+        <p>{{ description }}</p>
+
+        {% if access_granted %}
+            <p>"Добро пожаловать, сэр! Ваш столик уже ждет."</p>
+            <p><i>Вы наслаждаетесь роскошным ужином. Таких мест вы не видели с... Да вообще никогда. Что ж, все когда-то бывает в первый раз.</i></p>
+        {% else %}
+            <p class="forbidden">"Извините, ваш пропускной индекс {{ character.clearance_index }} недостаточен. Требуется минимум 60."</p>
+
+            <div class="event">
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.text }}</p>
+            </div>
+        {% endif %}
+
+        <p><i>Текущее состояние: Стресс {{ character.stress }}%, Усталость {{ character.fatigue }}%, Синька {{ character.credits }} эдди </i></p>
+        <p><a href="{% url 'main_map' %}">← На главную карту</a></p>
+    </div>
+</body>
+</html>

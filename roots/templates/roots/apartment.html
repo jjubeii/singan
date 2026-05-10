@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ location_name }} | Синган</title>
+    <style>
+        body { background-color: #1a1a1a; color: #e0e0e0; font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background-color: #2a2a2a; padding: 25px; border-radius: 25px; }
+        .item { display: inline-block; margin: 5px; padding: 10px; background: #3a3a3a; border-radius: 8px; }
+        .item a { color: #ffcc00; text-decoration: none; }
+        .item-detail { margin-top: 20px; padding: 15px; background: #333; border-left: 4px solid #ffcc00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{% static 'images/locations/eon_apartment.png' %}" alt="Квартира Эона">
+        <h1>{{ location_name }}</h1>
+        <p>{{ description }}</p>
+        <p><i>Текущее состояние: Стресс {{ character.stress }}%, Усталость {{ character.fatigue }}%, Синька {{ character.credits }} эдди.</i></p>
+
+        <hr>
+        <h3>Что осмотреть?</h3>
+        <div>
+            <span class="item"><a href="?item=helmet">🀰 Старый шлем</a></span>
+            <span class="item"><a href="?item=photo">🀰 Фотография</a></span>
+            <span class="item"><a href="?item=communicator">🀰 Коммуникатор</a></span>
+            <span class="item"><a href="?item=drawer">🀰 Ящик стола</a></span>
+            <span class="item"><a href="?item=window">🀰 Окно</a></span>
+        </div>
+
+        {% if item_detail %}
+        <div class="item-detail">
+            <h4>{{ item_detail.title }}</h4>
+            <p>{{ item_detail.text }}</p>
+            {% if selected_item == 'helmet' %}
+                <img src="{% static 'images/items/helmet.jpg' %}" alt="Шлем">
+            {% elif selected_item == 'photo' %}
+                <img src="{% static 'images/items/photo.jpg' %}" alt="Фотография">
+            {% elif selected_item == 'communicator' %}
+                <img src="{% static 'images/items/communicator.jpg' %}" alt="Коммуникатор">
+            {% elif selected_item == 'drawer' %}
+                <img src="{% static 'images/items/drawer.jpg' %}" alt="Ящик">
+            {% elif selected_item == 'window' %}
+                <img src="{% static 'images/items/window_view.jpg' %}" alt="Вид">
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <hr>
+        <p><a href="{% url 'main_map' %}">← На главную карту</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ location_name }} | Синган</title>
+    <style>
+        body { background-color: #1a1a1a; color: #e0e0e0; font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 650px; margin: auto; background-color: #2a2a2a; padding: 25px; border-radius: 25px; }
+        .quote { background-color: #3a3a3a; padding: 10px; border-left: 4px solid #ffaa00; margin: 10px 0; }
+        .quest { background-color: #3a3a3a; padding: 15px; border-left: 6px solid #ffcc00; margin: 20px 0; }
+        .quest a { color: #ffcc00; text-decoration: none; font-weight: bold; }
+        .status { color: #aaa; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ location_name }}</h1>
+        <p>{{ description }}</p>
+        <div class="quote">{{ timo_quote }}</div>
+
+        <!-- === БЛОК ЗАДАНИЯ === -->
+        {% if unsolved_puzzle %}
+        <div class="quest">
+            <h3>🀰 Доступное задание: «{{ unsolved_puzzle.name }}»</h3>
+            <p>Размер сетки: {{ unsolved_puzzle.grid_width }}×{{ unsolved_puzzle.grid_height }}</p>
+            <p><a href="{% url 'drone_puzzle' unsolved_puzzle.id %}">➤ Взять инструменты и чинить</a></p>
+        </div>
+        {% endif %}
+
+        
+
+        <p class="status">Текущее состояние: Стресс {{ character.stress }}%, Усталость {{ character.fatigue }}%, Синька {{ character.credits }} эдди</p>
+        <p><a href="{% url 'main_map' %}">← На главную карту Сингана</a></p>
+    </div>
+</body>
+</html>

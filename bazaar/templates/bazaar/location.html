@@ -1,0 +1,59 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ location_name }} | Синган</title>
+    <style>
+        body { background-color: #1a1a1a; color: #e0e0e0; font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 650px; margin: auto; background-color: #2a2a2a; padding: 25px; border-radius: 25px; }
+        .quote { background-color: #3a3a3a; padding: 10px; border-left: 4px solid #ff5500; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ location_name }}</h1>
+        <p>{{ description }}</p>
+        {% if chan_quote %}
+            <div class="quote">{{ chan_quote }}</div>
+        {% elif lilith_quote %}
+            <div class="quote">{{ lilith_quote }}</div>
+        {% endif %}
+        {% if location_name == 'Старая кофейня' %}
+        <img src="{% static 'images/locations/coffeehouse.png' %}" alt="Старая кофейня»">
+
+            <hr>
+            <h3>Лилит стряхивает пепел в пустую пачку.</h3>
+            <p><i>Слушай, у меня есть одна ниточка, но я не благотворительная организация. Поможешь мне – помогу и я.</i></p>
+            <form action="" method="post">
+                {% csrf_token %}
+                <button type="submit" name="action" value="accept">🀰 Выслушать её (взять наводку)</button>
+            </form>
+            <form action="" method="post">
+                {% csrf_token %}
+                <button type="submit" name="action" value="refuse">🀰 Уйти ("Я в такие игры не играю")</button>
+            </form>
+        {% endif %}
+        <!-- Кнопки для будущего интерактива -->
+        <p><i>(В будущем здесь можно будет выбрать действие, например: "Заговорить с Чаном", "Заказать лапшу", "Взять заказ"}</i></p>
+        {% if location_name == 'Забегаловка Мистера Чана' %}
+        <img src="{% static 'images/locations/chans_diner.png' %}" alt="Забегаловка Мистера Чана">
+            <hr>
+            <h3>Чан пододвигает к тебе небольшой контейнер.</h3>
+            <p><i>"Есть работа. Не для Мистера Чу. Нужен живой курьер. Ты почти бесплатный".</i></p>
+            <form action="{% url 'take_job' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Взяться за доставку</button>
+            </form>
+            <form action="{% url 'refuse_job' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Отказаться</button>
+            </form>
+        {% endif %}
+
+
+        <p><a href="{% url 'bazaar_index' %}">← Назад к Базару</a></p>
+    </div>
+</body>
+</html>

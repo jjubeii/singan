@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ puzzle.name }} | Мастерская Тимо</title>
+    <style>
+        body { background-color: #1a1a1a; color: #e0e0e0; font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background-color: #2a2a2a; padding: 20px; border-radius: 15px; }
+        .grid { display: grid; grid-template-columns: repeat({{ puzzle.grid_width }}, 50px); gap: 2px; margin-bottom: 20px; }
+        .cell { width: 50px; height: 50px; background-color: #444; border: 1px solid #555; }
+        .cell.start { background-color: #4caf50; }
+        .cell.finish { background-color: #2196f3; }
+        .cell.broken { background-color: #f44336; }
+        .cell.drone { background-color: #ffa500 !important; box-shadow: 0 0 10px #ffa500; }
+        textarea { width: 100%; background-color: #333; color: #e0e0e0; border: 1px solid #555; font-family: monospace; padding: 10px; }
+        button { background-color: #ffcc00; color: #000; border: none; padding: 10px 20px; margin-top: 10px; border-radius: 5px; cursor: pointer; }
+        #output { margin-top: 15px; padding: 10px; background-color: #3a3a3a; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ puzzle.name }} ({{ puzzle.grid_width }}×{{ puzzle.grid_height }})</h1>
+
+        <!-- Игровая сетка -->
+        <div class="grid" id="grid-container">
+            {% for cell in cells %}
+                <div class="cell {% if cell.is_start %}start{% elif cell.is_finish %}finish{% elif cell.is_broken %}broken{% endif %}"
+                     data-x="{{ cell.x }}" data-y="{{ cell.y }}">
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Панель управления -->
+        <form id="program-form">
+            {% csrf_token %}
+            <label for="program"><strong>Программа для дрона:</strong></label><br>
+            <textarea id="program" name="program" rows="6" placeholder="Введите команды..."></textarea>
+            <br>
+            <button type="button" id="run-btn">🀰 Запустить</button>
+            <button type="button" id="reset-btn">🀰 Сбросить</button>
+        </form>
+
+        <!-- Блок для сообщений -->
+        <div id="output"></div>
+
+        <p><a href="{% url 'timos_workshop' %}">← Назад в мастерскую Тимо</a></p>
+    </div>
+
+    <!-- Подключаем JavaScript -->
+    <script src="{% static 'js/drone_emu.js' %}"></script>
+
+    <!-- Передаём глобальные переменные для эмуляции -->
+    <script>
+        const START_X = {{ puzzle.start_x }};
+        const START_Y = {{ puzzle.start_y }};
+        const FINISH_X = {{ puzzle.finish_x }};
+        const FINISH_Y = {{ puzzle.finish_y }};
+        const width = {{ puzzle.grid_width }};
+        const height = {{ puzzle.grid_height }};
+        const BROKEN_CELLS = JSON.parse('{{ broken_json|safe }}');
+    </script>
+</body>
+</html>

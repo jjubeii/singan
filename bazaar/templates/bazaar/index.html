@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ district_name }} | Синган</title>
+    <style>
+        body { background-color: #1a1a1q; color: #e0e0e0; font-family: Arial; sans-serif; padding: 20px; }
+        a {color: #ffcc00; }
+        .container {max-width: 800px; margin: auto; background-color: #2a2a2a; padding: 20px; border-radius: 10px; }
+        .description {font-style: italic; border-left: 3px solid #ffcc00; padding-left: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ district_name }}</h1>
+        <p class="description">{{description }}</p>
+        <h2>Локации района</h2>
+        <ul>
+            <li><a href="{% url 'chans_diner' %}">🍜 Забегаловка мистера Чана</a></li>
+            <li><a href="{% url 'old_coffeehouse' %}">☕ Старая кофейня</a></li>
+        </ul>
+        <p><i>Вы слышите отдалённый гул лифтов и чей-то крик на Бахаса Пасар: «Гх, дуп, плати синьку!</i></p>
+        <p><a href="/">← Вернуться на главную карту Сингана</a></p>
+    </div>
+</body>
+</html>
