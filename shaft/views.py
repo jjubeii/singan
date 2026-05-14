@@ -5,7 +5,7 @@ from characters.models import Character
 import json
 from django.http import JsonResponse
 from .models import DronePuzzle
-from .drone_checker import check_program
+from .drone_checker import run_program
 
 
 def get_eon():
@@ -57,7 +57,7 @@ def drone_puzzle_view(request, puzzle_id):
 
     if request.method == 'POST':
         program = request.POST.get('program', '')
-        result = check_program(program, puzzle, broken)
+        result = run_program(program, puzzle)
         if result['success']:
             puzzle.is_solved = True
             puzzle.save()
@@ -65,9 +65,11 @@ def drone_puzzle_view(request, puzzle_id):
 
     context = {
         'puzzle': puzzle,
-        'broken_json': puzzle.broken_cells,
+        'broken_json': puzzle.broken_cells if puzzle.broken_cells else '[]',
         'cells': cells,
+        'items_json': puzzle.items if puzzle.items else '[]',
     }
+
 
     return render(request, 'shaft/drone_puzzle.html', context)
 

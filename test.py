@@ -6,3 +6,4 @@ for _ in result:
     print(_)
 for _ in result2:
     print(_)
+print(type(print))

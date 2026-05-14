@@ -10,6 +10,10 @@ class DronePuzzle(models.Model):
     start_y = models.IntegerField(default=0)
     finish_x = models.IntegerField(default=2)
     finish_y = models.IntegerField(default=2)
+    hint_code = models.TextField(blank=True, help_text='Пример кода-подсказки')
+    max_steps = models.IntegerField(default=20)  # лимит команд, чтобы учить оптимизации
+    items = models.TextField(default='[]')
+    battery = models.IntegerField(default=10)
     # Список координат поломанных клеток в JSON: "[[1,0],[2,1]]"
     broken_cells = models.TextField(default='[]')
 

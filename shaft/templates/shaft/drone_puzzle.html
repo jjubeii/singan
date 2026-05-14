@@ -3,62 +3,233 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ puzzle.name }} | Мастерская Тимо</title>
     <style>
-        body { background-color: #1a1a1a; color: #e0e0e0; font-family: Arial, sans-serif; padding: 20px; }
-        .container { max-width: 700px; margin: auto; background-color: #2a2a2a; padding: 20px; border-radius: 15px; }
-        .grid { display: grid; grid-template-columns: repeat({{ puzzle.grid_width }}, 50px); gap: 2px; margin-bottom: 20px; }
-        .cell { width: 50px; height: 50px; background-color: #444; border: 1px solid #555; }
-        .cell.start { background-color: #4caf50; }
+        /* Общие стили */
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        /* Флекс-контейнер: сетка слева, панель справа */
+        .main-layout {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .game-grid-box {
+            flex: 1 1 auto;
+            min-width: 250px;
+        }
+        .help-panel-box {
+            flex: 0 0 300px;
+            min-width: 250px;
+        }
+
+        /* Сетка */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat({{ puzzle.grid_width }}, 50px);
+            gap: 2px;
+            margin-bottom: 10px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #444;
+            border: 1px solid #555;
+            box-sizing: border-box;
+        }
+        .cell.start  { background-color: #4caf50; }
         .cell.finish { background-color: #2196f3; }
         .cell.broken { background-color: #f44336; }
-        .cell.drone { background-color: #ffa500 !important; box-shadow: 0 0 10px #ffa500; }
-        textarea { width: 100%; background-color: #333; color: #e0e0e0; border: 1px solid #555; font-family: monospace; padding: 10px; }
-        button { background-color: #ffcc00; color: #000; border: none; padding: 10px 20px; margin-top: 10px; border-radius: 5px; cursor: pointer; }
-        #output { margin-top: 15px; padding: 10px; background-color: #3a3a3a; border-radius: 5px; }
+        .cell.drone  { background-color: #ffa500 !important; box-shadow: 0 0 8px #ffa500; }
+        .cell.item   { background-color: #ffdd44; }
+        .cell.collected { background-color: #666; }
+
+        /* Панель с подсказками */
+        .help-panel {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 10px;
+        }
+        #timo-message {
+            background: #3a3a3a;
+            border-left: 4px solid #ffcc00;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            min-height: 36px;
+            color: #ffcc00;
+            font-style: italic;
+        }
+
+        /* Регистры */
+        #registers {
+            margin-bottom: 12px;
+            padding: 8px 10px;
+            background: #222;
+            border-radius: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #ffcc00;
+        }
+        #registers span {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Справочник команд */
+        #command-help ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        #command-help li {
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+        #command-help code {
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        #command-help code:hover {
+            background: #777;
+        }
+
+        /* Поле ввода и кнопки */
+        textarea {
+            width: 100%;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            font-family: monospace;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #ffcc00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #888;
+            cursor: default;
+        }
+        #output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #3a3a3a;
+            border-radius: 5px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 650px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .help-panel-box {
+                flex: 1 1 auto;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>{{ puzzle.name }} ({{ puzzle.grid_width }}×{{ puzzle.grid_height }})</h1>
 
-        <!-- Игровая сетка -->
-        <div class="grid" id="grid-container">
-            {% for cell in cells %}
-                <div class="cell {% if cell.is_start %}start{% elif cell.is_finish %}finish{% elif cell.is_broken %}broken{% endif %}"
-                     data-x="{{ cell.x }}" data-y="{{ cell.y }}">
+        <div class="main-layout">
+            <!-- ЛЕВАЯ КОЛОНКА: игровая сетка -->
+            <div class="game-grid-box">
+                <div class="grid" id="grid-container">
+                    {% for cell in cells %}
+                        <div class="cell {% if cell.is_start %}start{% elif cell.is_finish %}finish{% elif cell.is_broken %}broken{% endif %}"
+                             data-x="{{ cell.x }}" data-y="{{ cell.y }}"></div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА: подсказки + регистры + справочник -->
+            <div class="help-panel-box">
+                <div class="help-panel">
+                    <!-- Сообщение от Тимо -->
+                    <div id="timo-message">Тимо: «Ну что, починим дрона?»</div>
+
+                    <!-- Панель регистров -->
+                    <div id="registers">
+                        <span>AX=<span id="reg-AX">0</span></span>
+                        <span>BX=<span id="reg-BX">0</span></span>
+                        <span>CX=<span id="reg-CX">0</span></span>
+                        <span>DX=<span id="reg-DX">0</span></span>
+                        <span>DIR=<span id="reg-DIR">0</span></span>
+                        <span>ZF=<span id="reg-ZF">0</span></span>
+                    </div>
+
+                    <!-- Кликабельный справочник команд -->
+                    <div id="command-help">
+                        <strong>Справочник команд:</strong>
+                        <ul>
+                            <li><code class="cmd-snippet">MOV REG, число</code> – загрузить число в регистр</li>
+                            <li><code class="cmd-snippet">ADD REG, число</code> / <code class="cmd-snippet">SUB REG, число</code> – сложение/вычитание</li>
+                            <li><code class="cmd-snippet">INC REG</code> / <code class="cmd-snippet">DEC REG</code> – увеличить/уменьшить на 1</li>
+                            <li><code class="cmd-snippet">CMP REG, число</code> – сравнить (ставит флаг ZF)</li>
+                            <li><code class="cmd-snippet">JMP метка</code> – безусловный переход</li>
+                            <li><code class="cmd-snippet">JZ метка</code> – если ZF=1</li>
+                            <li><code class="cmd-snippet">JNZ метка</code> – если ZF=0</li>
+                            <li><code class="cmd-snippet">STEP</code> – шаг в направлении DIR</li>
+                            <li><code class="cmd-snippet">SENSE</code> – прочитать датчик (пишет в AX)</li>
+                            <li><code class="cmd-snippet">FIX</code> – починить клетку</li>
+                            <li><code class="cmd-snippet">COLLECT</code> – собрать предмет</li>
+                            <li><code class="cmd-snippet">HLT</code> – остановка (на финише)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Панель управления -->
-        <form id="program-form">
+        <!-- Поле ввода и кнопки -->
+        <form id="program-form" style="margin-top: 15px;">
             {% csrf_token %}
-            <label for="program"><strong>Программа для дрона:</strong></label><br>
-            <textarea id="program" name="program" rows="6" placeholder="Введите команды..."></textarea>
+            <textarea id="program" name="program" rows="6" placeholder="Введите программу..."></textarea>
             <br>
             <button type="button" id="run-btn">🀰 Запустить</button>
             <button type="button" id="reset-btn">🀰 Сбросить</button>
         </form>
 
-        <!-- Блок для сообщений -->
+        <!-- Блок для технических сообщений (результат симуляции) -->
         <div id="output"></div>
 
-        <p><a href="{% url 'timos_workshop' %}">← Назад в мастерскую Тимо</a></p>
+        <!-- Глобальные переменные для JavaScript -->
+        <script>
+            var START_X = {{ puzzle.start_x }};
+            var START_Y = {{ puzzle.start_y }};
+            var FINISH_X = {{ puzzle.finish_x }};
+            var FINISH_Y = {{ puzzle.finish_y }};
+            var WIDTH = {{ puzzle.grid_width }};
+            var HEIGHT = {{ puzzle.grid_height }};
+            var BROKEN_CELLS = {{ broken_json|safe }};
+            var ITEMS = {{ items_json|safe }};
+        </script>
+        <script src="{% static 'js/drone_emu.js' %}"></script>
     </div>
-
-    <!-- Подключаем JavaScript -->
-    <script src="{% static 'js/drone_emu.js' %}"></script>
-
-    <!-- Передаём глобальные переменные для эмуляции -->
-    <script>
-        const START_X = {{ puzzle.start_x }};
-        const START_Y = {{ puzzle.start_y }};
-        const FINISH_X = {{ puzzle.finish_x }};
-        const FINISH_Y = {{ puzzle.finish_y }};
-        const width = {{ puzzle.grid_width }};
-        const height = {{ puzzle.grid_height }};
-        const BROKEN_CELLS = JSON.parse('{{ broken_json|safe }}');
-    </script>
 </body>
 </html>
