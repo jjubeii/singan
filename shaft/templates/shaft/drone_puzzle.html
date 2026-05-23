@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ puzzle.name }} | Мастерская Тимо</title>
     <style>
-        /* Общие стили */
         body {
             background-color: #1a1a1a;
             color: #e0e0e0;
@@ -15,65 +14,107 @@
             margin: 0;
         }
         .container {
-            max-width: 1100px;
+            max-width: 1300px;
             margin: auto;
         }
-
-        /* Флекс-контейнер: сетка слева, панель справа */
-        .main-layout {
+        .main-row {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
         }
         .game-grid-box {
-            flex: 1 1 auto;
-            min-width: 250px;
+            flex: 0 0 auto;
         }
-        .help-panel-box {
-            flex: 0 0 300px;
-            min-width: 250px;
+        .right-panel {
+            flex: 1 1 500px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-
-        /* Сетка */
         .grid {
             display: grid;
             grid-template-columns: repeat({{ puzzle.grid_width }}, 50px);
             gap: 2px;
-            margin-bottom: 10px;
         }
         .cell {
             width: 50px;
             height: 50px;
-            background-color: #444;
+            background-color: #222;          /* фоллбэк-цвет */
+            background-size: cover;
+            background-position: center;
             border: 1px solid #555;
             box-sizing: border-box;
+            position: relative;               /* чтобы спрайт дрона позиционировался внутри */
+            image-rendering: crisp-edges;     /* для pixel‑art стиля */
         }
-        .cell.start  { background-color: #4caf50; }
-        .cell.finish { background-color: #2196f3; }
-        .cell.broken { background-color: #f44336; }
-        .cell.drone  { background-color: #ffa500 !important; box-shadow: 0 0 8px #ffa500; }
-        .cell.item   { background-color: #ffdd44; }
-        .cell.collected { background-color: #666; }
+        /* Фон пола (для всех клеток по умолчанию) */
+        .cell {
+            background-image: url('/static/images/tiles/floor_metal.png');
+        }
+        /* Препятствие (сломанная клетка) */
+        .cell.broken {
+            background-image: url('/static/images/tiles/broken.png');
+        }
+        /* Предмет (посылка) */
+        .cell.item {
+            background-image: url('/static/images/tiles/chan_package.png');
+        }
+        /* Собранный предмет (потускневший) */
+        .cell.collected {
+            background-image: url('/static/images/tiles/floor_metal.png');
+            filter: brightness(0.6);
+        }
+        /* Финиш */
+        .cell.finish {
+            background-image: url('/static/images/tiles/finish.png');
+        }
+        /* Стартовая клетка (можно оставить подстветку или тоже заменить на текстуру пола) */
+        .cell.start {
+            background-image: url('/static/images/tiles/floor_metal.png');
+            box-shadow: inset 0 0 8px #4caf50;
+        }
 
-        /* Панель с подсказками */
-        .help-panel {
-            background: #2a2a2a;
-            padding: 12px;
-            border-radius: 10px;
+        /* === СПРАЙТ ДРОНА === */
+        .drone-sprite {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: -20px;   /* центрируем */
+            margin-top: -20px;
+            background-image: url('/static/images/tiles/drone_sprite.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            image-rendering: crisp-edges;
+            transition: transform 0.2s ease;
+            pointer-events: none;  /* чтобы не мешал кликам */
         }
-        #timo-message {
-            background: #3a3a3a;
-            border-left: 4px solid #ffcc00;
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            min-height: 36px;
+
+        .timo-block {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .timo-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: #444;
+            flex-shrink: 0;
+        }
+        .timo-text {
+            flex: 1;
             color: #ffcc00;
             font-style: italic;
+            min-height: 60px;
         }
-
-        /* Регистры */
         #registers {
-            margin-bottom: 12px;
             padding: 8px 10px;
             background: #222;
             border-radius: 6px;
@@ -89,45 +130,39 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
-
-        /* Справочник команд */
-        #command-help ul {
-            list-style: none;
-            padding-left: 0;
-            margin: 0;
+        .coding-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
         }
-        #command-help li {
-            margin-bottom: 3px;
-            font-size: 0.9em;
+        .program-box {
+            flex: 0 0 220px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        #command-help code {
-            background: #444;
-            padding: 2px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: inline-block;
-        }
-        #command-help code:hover {
-            background: #777;
-        }
-
-        /* Поле ввода и кнопки */
-        textarea {
+        .program-box textarea {
             width: 100%;
+            min-height: 300px;
             background-color: #333;
             color: #e0e0e0;
             border: 1px solid #555;
             font-family: monospace;
             padding: 10px;
-            box-sizing: border-box;
+            resize: vertical;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
         }
         button {
             background-color: #ffcc00;
             color: #000;
             border: none;
-            padding: 10px 20px;
-            margin-top: 10px;
-            margin-right: 10px;
+            padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
         }
@@ -136,19 +171,158 @@
             cursor: default;
         }
         #output {
-            margin-top: 15px;
             padding: 10px;
             background-color: #3a3a3a;
             border-radius: 5px;
         }
-
-        /* Адаптивность */
-        @media (max-width: 650px) {
-            .main-layout {
+        .command-panel {
+            flex: 1 1 300px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .cmd-entry {
+            background: #3a3a3a;
+            padding: 5px 10px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        .cmd-entry:hover {
+            background: #555;
+        }
+        .reg-pill, .label-pill {
+            display: inline-block;
+            background: #3a3a3a;
+            color: #ffcc00;
+            padding: 5px 10px;
+            margin: 0 3px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.9em;
+            border: 1px solid #555;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .reg-pill:hover, .label-pill:hover {
+            background: #555;
+            transform: translateY(-1px);
+        }
+        .reg-pill.selected {
+            background: #4caf50;
+            color: #fff;
+            border-color: #4caf50;
+        }
+        .label-custom-pill {
+            display: inline-block;
+            background: #555;
+            color: #fff;
+            padding: 5px 10px;
+            margin: 0 3px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.9em;
+            border: 1px solid #777;
+            transition: background 0.2s;
+        }
+        .label-custom-pill:hover {
+            background: #888;
+        }
+        .number-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            margin-left: 60px;
+        }
+        .number-widget {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .num-btn {
+            width: 26px;
+            height: 26px;
+            background: #444;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .num-btn:hover {
+            background: #666;
+        }
+        .number-widget input {
+            width: 50px;
+            height: 24px;
+            background: #333;
+            color: #ffcc00;
+            border: 1px solid #555;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.9em;
+            outline: none;
+            -moz-appearance: textfield;
+        }
+        .number-widget input::-webkit-outer-spin-button,
+        .number-widget input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .enter-hint {
+            display: inline-block;
+            background: #333;
+            color: #888;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-family: monospace;
+            font-size: 1em;
+            letter-spacing: 2px;
+        }
+        .label-input {
+            width: 100px;
+            height: 26px;
+            background: #333;
+            color: #ffcc00;
+            border: 1px solid #555;
+            padding: 0 6px;
+            font-family: monospace;
+            font-size: 0.9em;
+            outline: none;
+        }
+        .stack-item {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #555;
+        }
+        .stack-item.empty {
+            color: #888;
+            font-style: italic;
+        }
+        @media (max-width: 800px) {
+            .main-row {
                 flex-direction: column;
             }
-            .help-panel-box {
-                flex: 1 1 auto;
+            .coding-row {
+                flex-direction: column;
+            }
+            .program-box {
+                flex: auto;
+            }
+            .program-box textarea {
+                min-height: 200px;
             }
         }
     </style>
@@ -157,68 +331,82 @@
     <div class="container">
         <h1>{{ puzzle.name }} ({{ puzzle.grid_width }}×{{ puzzle.grid_height }})</h1>
 
-        <div class="main-layout">
-            <!-- ЛЕВАЯ КОЛОНКА: игровая сетка -->
+        <div class="main-row">
+            <!-- Сетка -->
             <div class="game-grid-box">
                 <div class="grid" id="grid-container">
                     {% for cell in cells %}
-                        <div class="cell {% if cell.is_start %}start{% elif cell.is_finish %}finish{% elif cell.is_broken %}broken{% endif %}"
+                        <div class="cell tile-floor {% if cell.is_start %}start{% elif cell.is_finish %}finish{% elif cell.is_broken %}broken{% endif %}"
                              data-x="{{ cell.x }}" data-y="{{ cell.y }}"></div>
                     {% endfor %}
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: подсказки + регистры + справочник -->
-            <div class="help-panel-box">
-                <div class="help-panel">
-                    <!-- Сообщение от Тимо -->
-                    <div id="timo-message">Тимо: «Ну что, починим дрона?»</div>
+            <!-- Правая часть -->
+            <div class="right-panel">
+                <!-- Тимо -->
+                <div class="timo-block">
+                    <div class="timo-avatar"></div>
+                    <div id="timo-message" class="timo-text">Тимо: «Ну что, починим дрона?»</div>
+                </div>
 
-                    <!-- Панель регистров -->
-                    <div id="registers">
-                        <span>AX=<span id="reg-AX">0</span></span>
-                        <span>BX=<span id="reg-BX">0</span></span>
-                        <span>CX=<span id="reg-CX">0</span></span>
-                        <span>DX=<span id="reg-DX">0</span></span>
-                        <span>DIR=<span id="reg-DIR">0</span></span>
-                        <span>ZF=<span id="reg-ZF">0</span></span>
+                <!-- Регистры -->
+                <div id="registers">
+                    <span>AX=<span id="reg-AX">0</span></span>
+                    <span>BX=<span id="reg-BX">0</span></span>
+                    <span>CX=<span id="reg-CX">0</span></span>
+                    <span>DX=<span id="reg-DX">0</span></span>
+                    <span>DIR=<span id="reg-DIR">0</span></span>
+                    <span>ZF=<span id="reg-ZF">0</span></span>
+                </div>
+
+                <!-- Визуализация стека -->
+                <div id="stack-panel" style="margin-bottom: 12px; padding: 8px 10px; background: #222; border-radius: 6px; font-family: monospace; font-size: 0.9em; color: #ffcc00;">
+                    <strong>Стек (SP: <span id="reg-SP">0</span>)</strong>
+                    <div id="stack-visual" style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
+                    <div class="stack-item empty">пусто</div>
+                    </div>
+                </div>
+
+                <!-- Ряд: поле ввода + справочник -->
+                <div class="coding-row">
+                    <div class="program-box">
+                        <form id="program-form">
+                            {% csrf_token %}
+                            <textarea id="program" name="program" placeholder="Введите программу..."></textarea>
+                        </form>
+                        <div class="btn-row">
+                            <button type="button" id="run-btn">🀰 Запустить</button>
+                            <button type="button" id="reset-btn">🀰 Сбросить</button>
+                        </div>
+                        <div id="output"></div>
                     </div>
 
-                    <!-- Кликабельный справочник команд -->
-                    <div id="command-help">
-                        <strong>Справочник команд:</strong>
-                        <ul>
-                            <li><code class="cmd-snippet">MOV REG, число</code> – загрузить число в регистр</li>
-                            <li><code class="cmd-snippet">ADD REG, число</code> / <code class="cmd-snippet">SUB REG, число</code> – сложение/вычитание</li>
-                            <li><code class="cmd-snippet">INC REG</code> / <code class="cmd-snippet">DEC REG</code> – увеличить/уменьшить на 1</li>
-                            <li><code class="cmd-snippet">CMP REG, число</code> – сравнить (ставит флаг ZF)</li>
-                            <li><code class="cmd-snippet">JMP метка</code> – безусловный переход</li>
-                            <li><code class="cmd-snippet">JZ метка</code> – если ZF=1</li>
-                            <li><code class="cmd-snippet">JNZ метка</code> – если ZF=0</li>
-                            <li><code class="cmd-snippet">STEP</code> – шаг в направлении DIR</li>
-                            <li><code class="cmd-snippet">SENSE</code> – прочитать датчик (пишет в AX)</li>
-                            <li><code class="cmd-snippet">FIX</code> – починить клетку</li>
-                            <li><code class="cmd-snippet">COLLECT</code> – собрать предмет</li>
-                            <li><code class="cmd-snippet">HLT</code> – остановка (на финише)</li>
-                        </ul>
+                    <div class="command-panel">
+                        <div id="command-help">
+                            <strong>Справочник команд:</strong>
+                            <div id="cmd-list">
+                                <div class="cmd-entry" data-cmd="MOV">MOV REG, число – загрузить число в регистр</div>
+                                <div class="cmd-entry" data-cmd="ADD">ADD REG, число – сложение</div>
+                                <div class="cmd-entry" data-cmd="SUB">SUB REG, число – вычитание</div>
+                                <div class="cmd-entry" data-cmd="INC">INC REG – увеличить на 1</div>
+                                <div class="cmd-entry" data-cmd="DEC">DEC REG – уменьшить на 1</div>
+                                <div class="cmd-entry" data-cmd="CMP">CMP REG, число – сравнить (ставит флаг ZF)</div>
+                                <div class="cmd-entry" data-cmd="JMP">JMP метка – безусловный переход</div>
+                                <div class="cmd-entry" data-cmd="JZ">JZ метка – если ZF=1</div>
+                                <div class="cmd-entry" data-cmd="JNZ">JNZ метка – если ZF=0</div>
+                                <div class="cmd-entry" data-cmd="STEP">STEP – шаг в направлении DIR</div>
+                                <div class="cmd-entry" data-cmd="SENSE">SENSE – прочитать датчик (пишет в AX)</div>
+                                <div class="cmd-entry" data-cmd="FIX">FIX – починить клетку</div>
+                                <div class="cmd-entry" data-cmd="COLLECT">COLLECT – собрать предмет</div>
+                                <div class="cmd-entry" data-cmd="HLT">HLT – остановка (на финише)</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Поле ввода и кнопки -->
-        <form id="program-form" style="margin-top: 15px;">
-            {% csrf_token %}
-            <textarea id="program" name="program" rows="6" placeholder="Введите программу..."></textarea>
-            <br>
-            <button type="button" id="run-btn">🀰 Запустить</button>
-            <button type="button" id="reset-btn">🀰 Сбросить</button>
-        </form>
-
-        <!-- Блок для технических сообщений (результат симуляции) -->
-        <div id="output"></div>
-
-        <!-- Глобальные переменные для JavaScript -->
         <script>
             var START_X = {{ puzzle.start_x }};
             var START_Y = {{ puzzle.start_y }};
